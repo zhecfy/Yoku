@@ -2,9 +2,10 @@ import re
 from urllib import parse
 from bs4 import BeautifulSoup
 import requests
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import logging
 import datetime
+import time
 
 from yoku.consts import KEY_TITLE, KEY_BUYNOW_PRICE, KEY_CURRENT_PRICE, KEY_END_TIMESTAMP, KEY_IMAGE, KEY_ITEM_ID, KEY_POST_TIMESTAMP, KEY_START_PRICE, KEY_START_TIMESTAMP, KEY_URL
 
@@ -21,7 +22,7 @@ def prettify_timestamp(timestamp: int) -> str:
     formatted_date_time = dt_object.strftime("%Y-%m-%d %H:%M:%S %Z")
     return formatted_date_time
 
-def get_raw_results(parameters: dict) -> str:
+def get_raw_results(parameters: dict, page=1) -> str:
     """
     Return raw html page content of the results from the search query
     """
@@ -35,7 +36,7 @@ def get_raw_results(parameters: dict) -> str:
         parameters['o1'] = 'd'
     
     # start cannot be more than 15000
-    parameters['b'] = 1
+    parameters['b'] = (page - 1) * 100 + 1
     parameters['n'] = 100
 
     parameters_list = []
@@ -47,10 +48,6 @@ def get_raw_results(parameters: dict) -> str:
         parameters_list.append(str(key) + "=" + str_value)
     query = '&'.join(parameters_list)
 
-    print (query)
-
-    input()
-
     url = YAHUOKU_SEARCH_TEMPLATE.format(query=query)
     print(f"[GET] {url}")
 
@@ -59,15 +56,18 @@ def get_raw_results(parameters: dict) -> str:
     return r.text
 
 
-def parse_raw_results(raw: str) -> List[Dict]:
+def parse_raw_results(raw: str) -> Tuple[bool, List[Dict]]:
     """
     Parse a raw html page of search results and return a list of result dicts
     """
 
+    if r"条件に一致する商品は見つかりませんでした。" in raw:
+        return False, []
+
     if r"に一致する商品はありません。キーワードの一部を利用した結果を表示しています" in raw:
         # This happens when there are no exact matches and the query contained more than one space-seperated keyword.
         # Yahoo! Auctions will try searching using some of the keywords, so the result are usually useless.
-        return []
+        return False, []
 
     results = []
     soup = BeautifulSoup(raw, "lxml")
@@ -132,14 +132,21 @@ def parse_raw_results(raw: str) -> List[Dict]:
 
         results.append(result)
 
-    return results
+    return bool(len(results) > 0), results
 
 
-def search(parameters: dict) -> List[Dict]:
+def search(parameters: dict, request_interval=1) -> List[Dict]:
     """
     Search for query and return a list of result dicts
     """
-
-    raw = get_raw_results(parameters)
-
-    return parse_raw_results(raw)
+    page = 1
+    all_results = []
+    while True:
+        raw = get_raw_results(parameters, page)
+        possible_next_page, results = parse_raw_results(raw)
+        all_results += results
+        if not possible_next_page:
+            break
+        page += 1
+        time.sleep(request_interval)
+    return all_results
