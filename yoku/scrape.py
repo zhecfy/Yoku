@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 from typing import List, Dict
 import logging
+import datetime
 
 from yoku.consts import KEY_TITLE, KEY_BUYNOW_PRICE, KEY_CURRENT_PRICE, KEY_END_TIMESTAMP, KEY_IMAGE, KEY_ITEM_ID, KEY_POST_TIMESTAMP, KEY_START_PRICE, KEY_START_TIMESTAMP, KEY_URL
 
@@ -15,6 +16,10 @@ YAHUOKU_SEARCH_TEMPLATE = r"https://auctions.yahoo.co.jp/search/search?{query}"
 POST_TIMESTAMP_REGEX = r"^.*-img\d+x\d+-(\d{10}).*$"
 AUCTION_TIMESTAMP_REGEX = r"^.*etm=(\d{10}),stm=(\d{10}).*$"
 
+def prettify_timestamp(timestamp: int) -> str:
+    dt_object = datetime.datetime.fromtimestamp(timestamp).astimezone()
+    formatted_date_time = dt_object.strftime("%Y-%m-%d %H:%M:%S %Z")
+    return formatted_date_time
 
 def get_raw_results(parameters: dict) -> str:
     """
@@ -115,9 +120,9 @@ def parse_raw_results(raw: str) -> List[Dict]:
             KEY_IMAGE: auction_img,
             KEY_URL: href,
 
-            KEY_POST_TIMESTAMP: post_timestamp,
-            KEY_END_TIMESTAMP: end_timestamp,
-            KEY_START_TIMESTAMP: start_timestamp,
+            KEY_POST_TIMESTAMP: prettify_timestamp(post_timestamp),
+            KEY_END_TIMESTAMP: prettify_timestamp(end_timestamp),
+            KEY_START_TIMESTAMP: prettify_timestamp(start_timestamp),
 
             KEY_ITEM_ID: auction_id,
             KEY_BUYNOW_PRICE: auction_buynowprice,
