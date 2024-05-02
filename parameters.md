@@ -85,6 +85,18 @@ Specifically,
 - fixed=2: オークション
 - fixed=3: すべて
 
+## `is_postage_mode`, `dest_pref_code`
+If the postage is shown below the prices (set with 送料を表示), and destination preference code, used to calculate postages (set with ...を設定中).
+
+### Value
+is_postage_mode: {0,1} (no / yes)
+
+dest_pref_code: integer between 1 and 48. 1 to 47 each corresponds to a Japanese prefecture, 48 is abroad.
+
+### Example
+
+is_postage_mode=1&dest_pref_code=13: 東京都を設定中
+
 ## Others
 
 I have also encountered these parameters while using, but haven't figured out their exact meanings and values.
@@ -100,8 +112,6 @@ x={0} // some kind of coordinates
 y={0}
 exflg={1} // extra flag?
 va=
-is_postage_mode={1}
-dest_pref_code={13} // destination preference code, perhaps used to calculate postages
 rc_ng={1}
 ```
 
