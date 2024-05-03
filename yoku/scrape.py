@@ -7,7 +7,7 @@ import logging
 import datetime
 import time
 
-from yoku.consts import KEY_TITLE, KEY_BUYNOW_PRICE, KEY_CURRENT_PRICE, KEY_END_TIMESTAMP, KEY_IMAGE, KEY_ITEM_ID, KEY_POST_TIMESTAMP, KEY_START_PRICE, KEY_START_TIMESTAMP, KEY_URL
+from yoku.consts import KEY_TITLE, KEY_BUYNOW_PRICE, KEY_CURRENT_PRICE, KEY_END_TIMESTAMP, KEY_IMAGE, KEY_ITEM_ID, KEY_POST_TIMESTAMP, KEY_START_PRICE, KEY_START_TIMESTAMP, KEY_URL, KEY_BID_COUNT
 
 YAHUOKU_SEARCH_TEMPLATE = r"https://auctions.yahoo.co.jp/search/search?{query}"
 
@@ -96,7 +96,7 @@ def parse_raw_results(raw: str) -> Tuple[bool, List[Dict]]:
         if not match:
             # print(auction_title, href)
             # print(f"POST_TIMESTAMP_REGEX not match, auction_img={auction_img}")
-            # could happen to very old auctions
+            # could happen for auctions using the default image
             post_timestamp = 0
 
         post_timestamp = int(match.group(1))
@@ -115,6 +115,13 @@ def parse_raw_results(raw: str) -> Tuple[bool, List[Dict]]:
         auction_price = product_bonus["data-auction-price"]
         auction_startprice = product_bonus["data-auction-startprice"]
 
+        product_bids = product_detail.find_all("dd", class_="Product__bid")
+
+        if not product_bids:
+            bid_count = 0
+        else:
+            bid_count = int(product_bids[0].string)
+
         result = {
             KEY_TITLE: auction_title,
             KEY_IMAGE: auction_img,
@@ -128,6 +135,7 @@ def parse_raw_results(raw: str) -> Tuple[bool, List[Dict]]:
             KEY_BUYNOW_PRICE: auction_buynowprice,
             KEY_CURRENT_PRICE: auction_price,
             KEY_START_PRICE: auction_startprice,
+            KEY_BID_COUNT: bid_count,
         }
 
         results.append(result)
