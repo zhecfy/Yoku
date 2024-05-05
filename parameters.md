@@ -97,6 +97,30 @@ dest_pref_code: integer between 1 and 48. 1 to 47 each corresponds to a Japanese
 
 is_postage_mode=1&dest_pref_code=13: 東京都を設定中
 
+## `istatus`
+Item status (set with 商品の状態).
+
+### Value
+
+{1,2,3,4,5,6,7}
+
+Specifically,
+- istatus=1: 未使用
+- istatus=2: 中古
+- istatus=3: 未使用に近い
+- istatus=4: 目立った傷や汚れなし
+- istatus=5: やや傷や汚れあり
+- istatus=6: 傷や汚れあり
+- istatus=7: 全体的に状態が悪い
+
+Note: multiple choice, seperate values with comma (which, after URL encoding, becomes %2C).
+
+### Example
+
+istatus=3%2C4%2C6: 未使用に近い or 目立った傷や汚れなし or 傷や汚れあり
+
+istatus=3%2C4%2C5%2C6%2C7 is equivalent to istatus=2
+
 ## Others
 
 I have also encountered these parameters while using, but haven't figured out their exact meanings and values.
