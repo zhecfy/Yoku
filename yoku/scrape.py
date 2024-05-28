@@ -27,7 +27,7 @@ def get_raw_results(parameters: dict, page=1) -> str:
     Return raw html page content of the results from the search query
     """
 
-    if 'p' not in parameters:
+    if 'p' not in parameters and 'va' not in parameters:
         raise ValueError("No query provided")
 
     # Default search sorted by recommended
