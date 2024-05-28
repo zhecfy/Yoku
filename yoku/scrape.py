@@ -41,7 +41,8 @@ def get_raw_results(parameters: dict, page=1) -> str:
 
     parameters_list = []
     for key, value in parameters.items():
-        if key == 'p':
+        # Here we say nothing about the potential overrides, let the caller deal with that
+        if key == 'p' or key == 'va' or key == 'vo' or key == 've':
             str_value = parse.quote_plus(value)
         # single istatus as int (deprecated) will fall back to else
         # multiple istatus as list will be encoded to str here
