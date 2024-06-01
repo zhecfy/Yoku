@@ -46,7 +46,7 @@ def get_raw_results(parameters: dict, page=1) -> str:
             str_value = parse.quote_plus(value)
         # single istatus as int (deprecated) will fall back to else
         # multiple istatus as list will be encoded to str here
-        if key == "istatus" and isinstance(value, list):
+        elif key == "istatus" and isinstance(value, list):
             str_value = "%2C".join(map(str, value)) # %2C is URL-encoded comma
         else:
             str_value = str(value)
