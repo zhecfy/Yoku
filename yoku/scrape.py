@@ -104,7 +104,8 @@ def parse_raw_results(raw: str) -> Tuple[bool, List[Dict]]:
             # could happen for auctions using the default image
             post_timestamp = 0
 
-        post_timestamp = int(match.group(1))
+        else:
+            post_timestamp = int(match.group(1))
 
         match = re.match(AUCTION_TIMESTAMP_REGEX, cl_params)
         if not match:
